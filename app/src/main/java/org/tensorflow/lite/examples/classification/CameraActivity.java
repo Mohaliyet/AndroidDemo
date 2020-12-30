@@ -53,7 +53,6 @@ import android.widget.Toast;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.tensorflow.lite.examples.classification.env.ImageUtils;
 import org.tensorflow.lite.examples.classification.env.Logger;
@@ -126,14 +125,14 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     threadsTextView = findViewById(R.id.threads);
-    plusImageView = findViewById(R.id.plus);
-    minusImageView = findViewById(R.id.minus);
+    plusImageView = findViewById(R.id.Camera_icon);
+    minusImageView = findViewById(R.id.Upload_icon);
     modelSpinner = findViewById(R.id.model_spinner);
     deviceSpinner = findViewById(R.id.device_spinner);
     bottomSheetLayout = findViewById(R.id.bottom_sheet_layout);
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
-    //bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+    bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(
@@ -676,13 +675,13 @@ boolean hun = false;
 
   @Override
   public void onClick(View v) {
-    if (v.getId() == R.id.plus) {
+    if (v.getId() == R.id.Camera_icon) {
       String threads = threadsTextView.getText().toString().trim();
       int numThreads = Integer.parseInt(threads);
       if (numThreads >= 9) return;
       setNumThreads(++numThreads);
       threadsTextView.setText(String.valueOf(numThreads));
-    } else if (v.getId() == R.id.minus) {
+    } else if (v.getId() == R.id.Upload_icon) {
       String threads = threadsTextView.getText().toString().trim();
       int numThreads = Integer.parseInt(threads);
       if (numThreads == 1) {

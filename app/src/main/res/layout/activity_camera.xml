@@ -26,8 +26,7 @@
         android:orientation="vertical">
 
 
-        <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <FrameLayout
             android:id="@+id/container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -44,14 +43,13 @@
 
            <TextView
                android:layout_width="match_parent"
-               android:text="Currency Detector App"
+               android:text="Android App Demo"
                android:textColor="#fff"
                android:textSize="20sp"
                android:layout_height="wrap_content"/>
         </androidx.appcompat.widget.Toolbar>
 
     </RelativeLayout>
-
     <include
         android:id="@+id/bottom_sheet_layout"
         layout="@layout/layout_bottom_sheet" />
