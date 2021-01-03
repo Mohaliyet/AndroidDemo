@@ -43,7 +43,7 @@
 
            <TextView
                android:layout_width="match_parent"
-               android:text="Android App Demo"
+               android:text="Appropriate Technology"
                android:textColor="#fff"
                android:textSize="20sp"
                android:layout_height="wrap_content"/>

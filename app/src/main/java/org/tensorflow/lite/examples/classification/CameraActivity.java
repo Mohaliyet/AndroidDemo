@@ -19,6 +19,7 @@ package org.tensorflow.lite.examples.classification;
 import android.Manifest;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.hardware.camera2.CameraAccessException;
@@ -30,6 +31,7 @@ import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -39,12 +41,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+
+import android.provider.MediaStore;
 import android.util.Size;
 import android.view.Surface;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -59,6 +64,8 @@ import org.tensorflow.lite.examples.classification.env.Logger;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Device;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Model;
 import org.tensorflow.lite.examples.classification.tflite.Classifier.Recognition;
+
+import static android.provider.MediaStore.Images.Media.INTERNAL_CONTENT_URI;
 
 public abstract class CameraActivity extends AppCompatActivity
     implements OnImageAvailableListener,
@@ -100,12 +107,19 @@ public abstract class CameraActivity extends AppCompatActivity
   private Spinner modelSpinner;
   private Spinner deviceSpinner;
   private TextView threadsTextView;
+  protected ImageButton liveButton;
+  protected  ImageButton uploadButton;
+  protected ImageButton resetButton;
 
+  private static final int PICK_IMAGE = 100;
+  protected Uri imageURI;
   // private Model model = Model.QUANTIZED;
   private Model model = Model.FLOAT;
   private Device device = Device.CPU;
   private int numThreads = -1;
-   MediaPlayer mp,mp1,mp2;
+  MediaPlayer mp,mp1,mp2;
+
+
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
     LOGGER.d("onCreate " + this);
@@ -133,6 +147,36 @@ public abstract class CameraActivity extends AppCompatActivity
     gestureLayout = findViewById(R.id.gesture_layout);
     sheetBehavior = BottomSheetBehavior.from(bottomSheetLayout);
     bottomSheetArrowImageView = findViewById(R.id.bottom_sheet_arrow);
+
+
+    liveButton =findViewById(R.id.live_button);
+    uploadButton = findViewById(R.id.upload_button);
+    resetButton = findViewById(R.id.reset_button);
+
+    resetButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Intent intent = getIntent();
+        finish();
+        overridePendingTransition( 0, 0);
+        startActivity(intent);
+        overridePendingTransition( 0, 0);
+      }
+    });
+    liveButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
+        startActivity(intent);
+
+      }
+    });
+    uploadButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        openGallery();
+      }
+    });
 
     ViewTreeObserver vto = gestureLayout.getViewTreeObserver();
     vto.addOnGlobalLayoutListener(
@@ -181,6 +225,7 @@ public abstract class CameraActivity extends AppCompatActivity
           public void onSlide(@NonNull View bottomSheet, float slideOffset) {}
         });
 
+
     recognitionTextView = findViewById(R.id.detected_item);
     recognitionValueTextView = findViewById(R.id.detected_item_value);
 //    recognition1TextView = findViewById(R.id.detected_item1);
@@ -204,6 +249,19 @@ public abstract class CameraActivity extends AppCompatActivity
     device = Device.valueOf(deviceSpinner.getSelectedItem().toString());
     numThreads = Integer.parseInt(threadsTextView.getText().toString().trim());
   }
+
+  private void openGallery() {
+    Intent gallery = new Intent(Intent.ACTION_PICK, INTERNAL_CONTENT_URI);
+    startActivityForResult(gallery,PICK_IMAGE);
+  }
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data){
+    super.onActivityResult(requestCode,resultCode,data);
+    if (resultCode == RESULT_OK && resultCode == PICK_IMAGE){
+      imageURI = data.getData();
+    }
+  }
+
 
   protected int[] getRgbBytes() {
     imageConverter.run();
@@ -516,6 +574,7 @@ public abstract class CameraActivity extends AppCompatActivity
     }
 
     getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
+
   }
 
   protected void fillBytes(final Plane[] planes, final byte[][] yuvBytes) {
